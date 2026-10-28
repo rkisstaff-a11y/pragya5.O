@@ -1,548 +1,315 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PRAGYA Quiz Studio</title>
+<title>PRAGYA 5.0 | Live Quiz</title>
 <style>
-:root {
-  --primary: #4f46e5;
-  --dark: #24215f;
-  --bg: #f4f6fb;
-  --border: #e1e5ef;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: var(--bg);
-  color: #202942;
-}
-header {
-  background: linear-gradient(120deg,var(--dark),#7048e8);
-  color: white;
-  padding: 22px 5%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-header h1 { margin: 0; }
-header p { margin-bottom: 0; color: #e0e7ff; }
-main { max-width: 1150px; margin: 24px auto; padding: 0 16px; }
-.card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 18px;
-  box-shadow: 0 5px 20px #2029420a;
-}
-.grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
-input, select, textarea {
-  width: 100%;
-  padding: 11px;
-  border: 1px solid #ccd2e0;
-  border-radius: 8px;
-  margin: 5px 0 12px;
-  font: inherit;
-}
-label { font-size: 13px; font-weight: bold; }
-button {
-  border: 0;
-  border-radius: 9px;
-  padding: 11px 15px;
-  cursor: pointer;
-  font-weight: bold;
-  margin: 3px;
-}
-.primary { background: var(--primary); color: white; }
-.secondary { background: #ecebff; color: #3730a3; }
-.danger { background: #fee2e2; color: #991b1b; }
-.tabs { display: flex; flex-wrap: wrap; margin: 15px 0; }
-.tab { background: white; border: 1px solid var(--border); }
-.tab.active { background: var(--primary); color: white; }
-.hidden { display: none !important; }
-.question {
-  border: 1px solid var(--border);
-  padding: 15px;
-  margin: 12px 0;
-  border-radius: 12px;
-}
-.options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.option { display: flex; align-items: center; gap: 5px; }
-.option input[type=radio] { width: auto; margin: 0; }
-.option input[type=text] { min-width: 0; }
-.answer {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: white;
-  border: 1px solid var(--border);
-  margin: 8px 0;
-}
-.answer:hover { border-color: var(--primary); }
-.correct { background: #dcfce7 !important; }
-.wrong { background: #fee2e2 !important; }
-.score { font-size: 22px; color: var(--primary); font-weight: bold; }
-.timer { font-size: 26px; font-weight: bold; color: var(--primary); }
-.teamrow { display: flex; gap: 8px; align-items: center; }
-.teamrow input { flex: 1; min-width: 0; }
-.muted { color: #68738a; font-size: 13px; line-height: 1.5; }
-@media(max-width:750px) {
-  .grid { grid-template-columns: 1fr; }
-  .options { grid-template-columns: 1fr; }
-}
+:root{font-family:Arial,sans-serif;color:#182238;background:#f3f6fb}
+body{margin:0}.top{background:#243b80;color:white;padding:22px;text-align:center}
+main{max-width:900px;margin:22px auto;padding:0 14px}
+.card{background:white;border:1px solid #dce3ef;border-radius:14px;padding:20px;margin-bottom:16px}
+h1,h2{margin-top:0}input,textarea,select{box-sizing:border-box;width:100%;padding:12px;margin:6px 0 12px;border:1px solid #bdc8d9;border-radius:8px;font:inherit}
+button{background:#3657c8;color:white;border:0;border-radius:8px;padding:11px 15px;font-weight:bold;cursor:pointer;margin:4px}
+button.secondary{background:#e8edfb;color:#243b80}button.danger{background:#a32f3d}
+button:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+.option{display:block;border:1px solid #ccd5e4;border-radius:9px;padding:13px;margin:8px 0;cursor:pointer}
+.option input{width:auto;margin:0 8px 0 0}
+.muted{color:#667085;font-size:.92rem}.hidden{display:none}
+#status{padding:10px;border-radius:8px;background:#eef2ff;margin-bottom:12px}
+#qr{margin:12px auto;min-height:10px;display:flex;justify-content:center}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px;border-bottom:1px solid #e1e6ef}
+.bigcode{font-size:2rem;font-weight:bold;letter-spacing:5px}
 </style>
 </head>
 <body>
-
-<header>
-  <div>
-    <h1>PRAGYA Quiz Studio</h1>
-    <p>R.K. International School, Nabahi</p>
-  </div>
-  <button onclick="saveQuiz()">Save Quiz</button>
+<header class="top">
+  <h1>PRAGYA 5.0</h1>
+  <div>Live Inter-Team Quiz</div>
 </header>
-
 <main>
-  <section class="card">
-    <h2>Create Your Quiz</h2>
-    <label>Quiz / Competition Name</label>
-    <input id="title" value="PRAGYA 5.0 — Quiz Round">
+  <div id="status">Connecting to Firebase…</div>
 
-    <div class="grid">
-      <div>
-        <label>Seconds per question</label>
-        <input id="seconds" type="number" min="5" value="90">
-      </div>
-      <div>
-        <label>Marks for a correct answer</label>
-        <input id="points" type="number" min="0" value="10">
-      </div>
-    </div>
-    <label>Marks for a wrong answer</label>
-    <select id="wrongMarks">
-      <option value="0">0 — No negative marking</option>
-      <option value="-1">-1 mark</option>
-    </select>
-    <p class="muted">Questions: <b id="count">0</b> |
-      Total possible marks: <b id="total">0</b></p>
+  <section class="card" id="home">
+    <h2>Join a Quiz Room</h2>
+    <label>Joining code</label>
+    <input id="joinCode" placeholder="Enter the teacher's room code" maxlength="6">
+    <label>Team / House name</label>
+    <input id="teamName" placeholder="e.g. Dhaulagiri">
+    <button id="joinBtn">Join Quiz</button>
+    <hr>
+    <h2>Teacher / Quiz Host</h2>
+    <label>Host password for this browser session</label>
+    <input id="hostPassword" type="password" placeholder="Create a local host password">
+    <label>Questions (JSON format)</label>
+    <textarea id="questionsJson" rows="10">[
+  {
+    "question": "Which planet is known as the Red Planet?",
+    "options": ["Earth", "Mars", "Venus", "Jupiter"],
+    "correct": 1,
+    "points": 10
+  },
+  {
+    "question": "What is 12 × 8?",
+    "options": ["86", "92", "96", "108"],
+    "correct": 2,
+    "points": 10
+  }
+]</textarea>
+    <p class="muted">Each question needs a question, four options, a zero-based correct answer index (0–3), and optional points.</p>
+    <button id="createBtn">Create Room</button>
   </section>
 
-  <nav class="tabs">
-    <button class="tab active" onclick="show('builder',this)">Quiz Builder</button>
-    <button class="tab" onclick="show('teams',this)">Teams</button>
-    <button class="tab" onclick="show('game',this)">Play Quiz</button>
-  </nav>
-
-  <section id="builder" class="grid">
-    <div class="card">
-      <h2>Questions</h2>
-      <button class="primary" onclick="addQuestion('mcq')">+ Multiple Choice</button>
-      <button class="secondary" onclick="addQuestion('number')">+ Numerical</button>
-      <div id="questions"></div>
-      <button class="secondary" onclick="downloadQuiz()">Export Quiz JSON</button>
-      <button class="secondary" onclick="document.getElementById('file').click()">Import Quiz</button>
-      <input id="file" type="file" accept=".json" hidden onchange="importQuiz(event)">
+  <section class="card hidden" id="hostPanel">
+    <h2>Teacher Control Panel</h2>
+    <p>Room code:</p>
+    <div class="bigcode" id="hostCode"></div>
+    <div id="qr"></div>
+    <p class="muted">Teams can scan the QR code or enter the room code on this website.</p>
+    <p id="hostCount">Teams joined: 0</p>
+    <div class="row">
+      <button id="openQuestion">Open Question</button>
+      <button id="closeQuestion" class="secondary">Close & Score</button>
+      <button id="nextQuestion">Next Question</button>
     </div>
-    <aside>
-      <div class="card">
-        <h3>Quick Start</h3>
-        <button class="secondary" onclick="sample()">Load Sample Questions</button>
-        <button class="danger" onclick="clearQuestions()">Clear Questions</button>
-        <p class="muted">Choose the correct answer using the radio button beside an option. Complete all fields before starting.</p>
-      </div>
-      <div class="card">
-        <h3>How it works</h3>
-        <p>1. Add questions and answers.</p>
-        <p>2. Add your teams.</p>
-        <p>3. Start the timed quiz.</p>
-        <p>4. Review scores and export results.</p>
-      </div>
-    </aside>
+    <p id="hostQuestionInfo"></p>
+    <h3>Leaderboard</h3>
+    <div id="hostLeaderboard"></div>
+    <button id="endQuiz" class="danger">End Quiz</button>
+    <button id="leaveHost" class="secondary">Leave Host View</button>
   </section>
 
-  <section id="teams" class="grid hidden">
-    <div class="card">
-      <h2>Manage Teams</h2>
-      <button class="primary" onclick="addTeam()">+ Add Team</button>
-      <div id="teamsList"></div>
-      <button class="secondary" onclick="exportTeams()">Export Teams CSV</button>
-    </div>
-    <div class="card">
-      <h3>Team joining</h3>
-      <p class="muted">This version runs on one browser. A real QR joining system requires a hosted site and online database.</p>
-      <h2 id="joinCode">PRAGYA</h2>
-      <button class="secondary" onclick="newCode()">Generate Demo Code</button>
-      <p class="muted">The demo code does not connect other devices.</p>
-    </div>
-  </section>
-
-  <section id="game" class="grid hidden">
-    <div class="card" id="gameArea">
-      <h2>Ready to play?</h2>
-      <button class="primary" onclick="startQuiz()">Start Quiz</button>
-    </div>
-    <aside>
-      <div class="card">
-        <h2>Leaderboard</h2>
-        <div id="leaderboard">Scores will appear here.</div>
-      </div>
-      <div class="card">
-        <h3>Results</h3>
-        <button class="secondary" onclick="exportResults()">Download Results CSV</button>
-        <button class="danger" onclick="resetScores()">Reset Scores</button>
-      </div>
-    </aside>
+  <section class="card hidden" id="teamPanel">
+    <h2 id="teamHeading">Team</h2>
+    <p>Room: <strong id="teamCode"></strong></p>
+    <div id="teamGame">Waiting for the teacher to open the quiz…</div>
+    <button id="leaveTeam" class="secondary">Leave Team View</button>
+    <h3>Leaderboard</h3>
+    <div id="teamLeaderboard"></div>
   </section>
 </main>
 
-<script>
-let questions = [];
-let teams = [];
-let scores = {};
-let index = 0;
-let timer = null;
-let timeLeft = 90;
-let answered = false;
-let running = false;
-let preview = false;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {
+  getDatabase, ref, get, set, update, onValue, runTransaction
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+import {
+  getAuth, signInAnonymously
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+/* REPLACE THESE VALUES with the configuration from Firebase Console. */
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+  databaseURL: "PASTE_REALTIME_DATABASE_URL",
+  projectId: "PASTE_PROJECT_ID",
+  appId: "PASTE_APP_ID"
+};
 
 const $ = id => document.getElementById(id);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
-function safe(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;', '<':'&lt;', '>':'&gt;',
-    '"':'&quot;', "'":'&#39;'
-  }[c]));
+let uid = null, roomCode = null, role = null, teamName = "";
+let stopRoom = null, stopTeams = null, stopScores = null, stopAnswers = null;
+let localQuestions = [], currentRoom = null, mySubmitted = false;
+let hostPass = "";
+
+function status(message){ $("status").textContent = message; }
+function show(id){ $(id).classList.remove("hidden"); }
+function hide(id){ $(id).classList.add("hidden"); }
+function path(p){ return ref(db,p); }
+function roomPath(){ return `rooms/${roomCode}`; }
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function stopListeners(){
+  [stopRoom,stopTeams,stopScores,stopAnswers].forEach(fn=>{if(fn)fn();});
+  stopRoom=stopTeams=stopScores=stopAnswers=null;
 }
-
-function show(id, button) {
-  ['builder','teams','game'].forEach(x =>
-    $(x).classList.toggle('hidden', x !== id));
-  document.querySelectorAll('.tab').forEach(b =>
-    b.classList.toggle('active', b === button));
+function randomCode(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
 }
-
-function addQuestion(type, data = {}) {
-  questions.push({
-    type,
-    text: data.text || '',
-    options: data.options || ['', '', '', ''],
-    correct: data.correct || 0,
-    answer: data.answer || '',
-    marks: data.marks ?? Number($('points').value || 10)
+function leaderboardHtml(teams,scores){
+  const rows=Object.entries(teams||{}).map(([id,t])=>({
+    name:t.name||"Team",score:Number((scores||{})[id]||0)
+  })).sort((a,b)=>b.score-a.score);
+  if(!rows.length)return "<p class='muted'>No teams have joined yet.</p>";
+  return "<table><thead><tr><th>Rank</th><th>Team</th><th>Points</th></tr></thead><tbody>"+
+    rows.map((t,i)=>`<tr><td>${i+1}</td><td>${esc(t.name)}</td><td>${t.score}</td></tr>`).join("")+
+    "</tbody></table>";
+}
+async function ensureAuth(){
+  if(!auth.currentUser) await signInAnonymously(auth);
+  uid=auth.currentUser.uid;
+}
+function watchRoom(){
+  stopListeners();
+  stopRoom=onValue(path(roomPath()),snap=>{
+    currentRoom=snap.val();
+    if(!currentRoom){status("This room is no longer available.");return;}
+    status(`Connected to room ${roomCode}`);
+    if(role==="team")renderTeamQuestion();
+    if(role==="host")renderHostInfo();
+  },err=>status("Room error: "+err.message));
+  stopTeams=onValue(path(`${roomPath()}/teams`),snap=>{
+    const teams=snap.val()||{};
+    if(role==="host")$("hostCount").textContent=`Teams joined: ${Object.keys(teams).length}`;
+    renderBoards(teams);
   });
-  renderQuestions();
-}
-
-function renderQuestions() {
-  $('questions').innerHTML = questions.map((q,i) => `
-    <div class="question">
-      <b>Question ${i+1}</b>
-      <button class="danger" onclick="removeQuestion(${i})">Remove</button>
-      <label>Question type</label>
-      <select onchange="changeType(${i},this.value)">
-        <option value="mcq" ${q.type==='mcq'?'selected':''}>Multiple Choice</option>
-        <option value="number" ${q.type==='number'?'selected':''}>Numerical</option>
-      </select>
-      <label>Question text</label>
-      <textarea rows="2" onchange="questions[${i}].text=this.value">${safe(q.text)}</textarea>
-      ${q.type==='mcq' ? `
-        <div class="options">
-          ${q.options.map((o,j)=>`
-            <div class="option">
-              <input type="radio" name="correct${i}"
-                ${q.correct===j?'checked':''}
-                onchange="questions[${i}].correct=${j}">
-              <input type="text" placeholder="Option ${j+1}"
-                value="${safe(o)}"
-                onchange="questions[${i}].options[${j}]=this.value">
-            </div>`).join('')}
-        </div>` : `
-        <label>Correct numerical answer</label>
-        <input type="number" step="any" value="${safe(q.answer)}"
-          onchange="questions[${i}].answer=this.value">`}
-      <label>Marks for this question</label>
-      <input type="number" min="0" value="${q.marks}"
-        onchange="questions[${i}].marks=Number(this.value);stats()">
-    </div>`).join('');
-  stats();
-}
-
-function changeType(i,type) {
-  questions[i].type = type;
-  renderQuestions();
-}
-function removeQuestion(i) {
-  questions.splice(i,1);
-  renderQuestions();
-}
-function stats() {
-  $('count').textContent = questions.length;
-  $('total').textContent = questions.reduce((s,q)=>s+(Number(q.marks)||0),0);
-}
-function clearQuestions() {
-  if(confirm('Delete all questions?')) {
-    questions=[]; renderQuestions();
-  }
-}
-
-function addTeam(name='Team '+(teams.length+1)) {
-  teams.push(name);
-  scores[name] = scores[name] || 0;
-  renderTeams();
-}
-function renderTeams() {
-  $('teamsList').innerHTML = teams.map((t,i)=>`
-    <div class="teamrow">
-      <input value="${safe(t)}" aria-label="Team name"
-        onchange="renameTeam(${i},this.value)">
-      <button class="danger" onclick="removeTeam(${i})">Remove</button>
-    </div>`).join('');
-  leaderboard();
-}
-function renameTeam(i,name) {
-  const old=teams[i];
-  name=name.trim() || 'Team '+(i+1);
-  teams[i]=name;
-  scores[name]=scores[old]||0;
-  if(old!==name) delete scores[old];
-  renderTeams();
-}
-function removeTeam(i) {
-  delete scores[teams[i]];
-  teams.splice(i,1);
-  renderTeams();
-}
-function newCode() {
-  $('joinCode').textContent=Math.floor(100000+Math.random()*900000);
-}
-
-function valid() {
-  if(!questions.length) return alert('Add at least one question.'),false;
-  for(const q of questions) {
-    if(!q.text.trim()) return alert('Enter every question.'),false;
-    if(q.type==='mcq' && q.options.some(x=>!x.trim()))
-      return alert('Complete all four options.'),false;
-    if(q.type==='number' && q.answer==='')
-      return alert('Enter each numerical answer.'),false;
-  }
-  if(!teams.length) return alert('Add at least one team.'),false;
-  return true;
-}
-
-function startQuiz() {
-  if(!valid()) return;
-  clearInterval(timer);
-  index=0; running=true; preview=false;
-  teams.forEach(t=>scores[t]=0);
-  show('game',document.querySelectorAll('.tab')[2]);
-  leaderboard();
-  renderQuestion();
-}
-
-function renderQuestion() {
-  clearInterval(timer);
-  if(index>=questions.length) return finish();
-  answered=false;
-  const q=questions[index];
-  timeLeft=Math.max(5,Number($('seconds').value)||90);
-  $('gameArea').innerHTML=`
-    <div style="display:flex;justify-content:space-between;gap:10px">
-      <b>Question ${index+1} / ${questions.length}</b>
-      <span class="timer" id="timer">${timeLeft}s</span>
-    </div>
-    <p class="muted">Select the team answering this question.</p>
-    <select id="activeTeam">
-      ${teams.map(t=>`<option value="${safe(t)}">${safe(t)}</option>`).join('')}
-    </select>
-    <h2>${safe(q.text)}</h2>
-    <div id="answers">
-      ${q.type==='mcq'
-        ? q.options.map((o,j)=>`
-          <button class="answer" onclick="choose(${j})">
-            ${String.fromCharCode(65+j)}. ${safe(o)}
-          </button>`).join('')
-        : `<input id="numericAnswer" type="number" step="any"
-             placeholder="Enter numerical answer">
-           <button class="primary" onclick="submitNumber()">Submit Answer</button>`}
-    </div>
-    <p id="feedback" class="muted"></p>
-    <button class="secondary" onclick="skip()">Skip / No Answer</button>
-    <button id="next" class="primary" onclick="next()" disabled>
-      ${index===questions.length-1?'Finish Quiz':'Next Question →'}
-    </button>`;
-  timer=setInterval(()=>{
-    timeLeft--;
-    const el=$('timer');
-    if(el) el.textContent=timeLeft+'s';
-    if(timeLeft<=0) {
-      clearInterval(timer);
-      if(!answered) {
-        answered=true;
-        $('feedback').textContent='Time is up. No answer recorded.';
-        $('next').disabled=false;
-      }
-    }
-  },1000);
-}
-
-function choose(choice) {
-  if(answered) return;
-  const q=questions[index];
-  const ok=choice===Number(q.correct);
-  document.querySelectorAll('.answer').forEach((b,j)=>{
-    b.disabled=true;
-    if(j===Number(q.correct)) b.classList.add('correct');
-    else if(j===choice) b.classList.add('wrong');
+  stopScores=onValue(path(`${roomPath()}/scores`),snap=>{
+    renderBoards(currentRoom?.teams||{},snap.val()||{});
   });
-  record(ok);
+  stopAnswers=onValue(path(`${roomPath()}/answers`),snap=>{
+    if(role==="host")$("hostQuestionInfo").textContent=
+      `Answers received for current question: ${Object.keys(snap.val()?.[currentRoom?.currentIndex]||{}).length}`;
+  });
 }
-function submitNumber() {
-  if(answered) return;
-  const value=$('numericAnswer').value;
-  if(value==='') return alert('Enter an answer.');
-  const ok=Math.abs(Number(value)-Number(questions[index].answer))<1e-9;
-  $('numericAnswer').disabled=true;
-  record(ok);
-  $('feedback').textContent=ok?'Correct!':
-    'Incorrect. Correct answer: '+questions[index].answer;
+function renderBoards(teams,scores){
+  const scoreData=scores||currentRoom?.scores||{};
+  const html=leaderboardHtml(teams||currentRoom?.teams||{},scoreData);
+  $("hostLeaderboard").innerHTML=html;
+  $("teamLeaderboard").innerHTML=html;
 }
-function record(correct) {
-  if(answered) return;
-  answered=true;
-  clearInterval(timer);
-  const team=$('activeTeam').value;
-  if(correct) scores[team]=(scores[team]||0)+Number(questions[index].marks);
-  else scores[team]=(scores[team]||0)+Number($('wrongMarks').value);
-  if($('feedback')) $('feedback').textContent +=
-    (correct?' Correct!':' Answer recorded.');
-  $('next').disabled=false;
-  leaderboard();
+function renderHostInfo(){
+  if(!currentRoom)return;
+  const i=currentRoom.currentIndex??-1;
+  $("hostQuestionInfo").textContent=i<0?"Ready to start.":`Question ${i+1} of ${currentRoom.questions.length}: ${currentRoom.questions[i]?.question||""} — ${currentRoom.questionOpen?"OPEN":"CLOSED"}`;
 }
-function skip() {
-  if(answered) return;
-  answered=true;
-  clearInterval(timer);
-  $('feedback').textContent='Skipped. No marks awarded.';
-  $('next').disabled=false;
+function renderTeamQuestion(){
+  const r=currentRoom, area=$("teamGame");
+  if(!r){area.textContent="Connecting…";return;}
+  if(r.ended){area.innerHTML="<h3>Quiz finished</h3><p>See the final leaderboard below.</p>";return;}
+  const i=r.currentIndex??-1;
+  if(i<0){area.textContent="You are in the room. Wait for the teacher to start.";return;}
+  if(!r.questionOpen){area.innerHTML=`<h3>Question ${i+1}</h3><p>The question is closed. Wait for the next one.</p>`;return;}
+  const q=r.questions[i];
+  if(!q)return;
+  area.innerHTML=`<h3>Question ${i+1}</h3><p>${esc(q.question)}</p><form id="answerForm">`+
+    q.options.map((o,n)=>`<label class="option"><input type="radio" name="answer" value="${n}" required> ${esc(o)}</label>`).join("")+
+    `<button type="submit" id="submitAnswer">Submit Answer</button></form><p id="answerMsg"></p>`;
+  $("answerForm").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const choice=Number(new FormData(e.target).get("answer"));
+    const button=$("submitAnswer");button.disabled=true;
+    try{
+      if(!currentRoom.questionOpen)throw new Error("This question has closed.");
+      await set(path(`${roomPath()}/answers/${i}/${uid}`),{choice,submittedAt:Date.now()});
+      mySubmitted=true;
+      $("answerMsg").textContent="Answer submitted. You cannot change it.";
+      [...e.target.querySelectorAll("input")].forEach(x=>x.disabled=true);
+    }catch(err){$("answerMsg").textContent=err.message;button.disabled=false;}
+  });
 }
-function next() {
-  index++;
-  renderQuestion();
+function renderHost(){
+  role="host";show("hostPanel");hide("home");hide("teamPanel");
+  $("hostCode").textContent=roomCode;
+  $("qr").innerHTML="";
+  const joinUrl=new URL(location.href);joinUrl.searchParams.set("room",roomCode);
+  new QRCode($("qr"),{text:joinUrl.toString(),width:190,height:190});
+  watchRoom();
 }
-function finish() {
-  running=false;
-  clearInterval(timer);
-  $('gameArea').innerHTML=`
-    <h2>🏆 Quiz Complete!</h2>
-    <p>All questions have been completed.</p>
-    <button class="primary" onclick="exportResults()">Export Results CSV</button>
-    <button class="secondary" onclick="startQuiz()">Play Again</button>`;
-  leaderboard();
+function renderTeam(){
+  role="team";show("teamPanel");hide("home");hide("hostPanel");
+  $("teamHeading").textContent=teamName;
+  $("teamCode").textContent=roomCode;
+  watchRoom();
 }
-function leaderboard() {
-  const sorted=teams.map(t=>({team:t,score:scores[t]||0}))
-    .sort((a,b)=>b.score-a.score);
-  $('leaderboard').innerHTML=sorted.map((x,i)=>`
-    <p>${['🥇','🥈','🥉'][i]||('#'+(i+1))}
-      <b>${safe(x.team)}</b>
-      <span style="float:right">${x.score} pts</span></p>`).join('') || 'Add teams first.';
-}
-function resetScores() {
-  if(!confirm('Reset all scores?')) return;
-  teams.forEach(t=>scores[t]=0);
-  leaderboard();
-}
-
-function download(name,content,type='application/json') {
-  const blob=new Blob([content],{type});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=name; a.click();
-  URL.revokeObjectURL(url);
-}
-function downloadQuiz() {
-  download('pragya-quiz.json',JSON.stringify({
-    title:$('title').value,
-    seconds:$('seconds').value,
-    points:$('points').value,
-    wrongMarks:$('wrongMarks').value,
-    questions
-  },null,2));
-}
-function saveQuiz() {
-  localStorage.setItem('pragyaQuiz',JSON.stringify({
-    title:$('title').value,
-    seconds:$('seconds').value,
-    points:$('points').value,
-    wrongMarks:$('wrongMarks').value,
-    questions,teams
-  }));
-  alert('Quiz saved in this browser.');
-}
-function importQuiz(event) {
-  const file=event.target.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try {
-      const d=JSON.parse(reader.result);
-      $('title').value=d.title||'Imported Quiz';
-      $('seconds').value=d.seconds||90;
-      $('points').value=d.points||10;
-      $('wrongMarks').value=d.wrongMarks??0;
-      questions=d.questions||[];
-      renderQuestions();
-      alert('Quiz imported.');
-    } catch(e) { alert('Invalid JSON file.'); }
-  };
-  reader.readAsText(file);
-}
-function exportResults() {
-  const rows=[['Rank','Team','Score'],
-    ...teams.map(t=>({team:t,score:scores[t]||0}))
-      .sort((a,b)=>b.score-a.score)
-      .map((x,i)=>[i+1,x.team,x.score])];
-  download('pragya-results.csv',
-    rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',').replace(/\\n/g,'')).join('\n'),
-    'text/csv');
-}
-function exportTeams() {
-  download('pragya-teams.csv',
-    'Team\n'+teams.map(t=>'"'+t.replace(/"/g,'""')+'"').join('\n'),
-    'text/csv');
-}
-function sample() {
-  questions=[
-    {type:'mcq',text:'Which planet is known as the Red Planet?',
-     options:['Venus','Mars','Jupiter','Mercury'],correct:1,answer:'',marks:10},
-    {type:'number',text:'What is 12 × 8?',
-     options:['','','',''],correct:0,answer:'96',marks:10}
-  ];
-  renderQuestions();
-}
-
-(function init(){
-  try {
-    const d=JSON.parse(localStorage.getItem('pragyaQuiz')||'null');
-    if(d) {
-      $('title').value=d.title||$('title').value;
-      $('seconds').value=d.seconds||90;
-      $('points').value=d.points||10;
-      $('wrongMarks').value=d.wrongMarks??0;
-      questions=d.questions||[];
-      teams=d.teams||[];
+$("createBtn").addEventListener("click",async()=>{
+  try{
+    await ensureAuth();
+    hostPass=$("hostPassword").value.trim();
+    if(hostPass.length<6)throw new Error("Set a host password of at least 6 characters.");
+    localQuestions=JSON.parse($("questionsJson").value);
+    if(!Array.isArray(localQuestions)||!localQuestions.length)throw new Error("Add at least one question.");
+    for(const q of localQuestions){
+      if(!q.question||!Array.isArray(q.options)||q.options.length<2||
+         !Number.isInteger(q.correct)||q.correct<0||q.correct>=q.options.length)
+        throw new Error("Each question needs text, options, and a valid correct index.");
+      q.points=Number(q.points||10);
     }
-  } catch(e) {}
-  if(!teams.length)
-    ['Dhaulagiri','Godwin','Everest','Himalaya'].forEach(addTeam);
-  renderQuestions();
-  renderTeams();
-})();
+    roomCode=randomCode();
+    const hostRecord={uid,createdAt:Date.now()};
+    await set(path(`roomHosts/${roomCode}`),hostRecord);
+    const publicQuestions=localQuestions.map(q=>({question:q.question,options:q.options,points:q.points}));
+    await set(path(roomPath()),{
+      hostUid:uid,questions:publicQuestions,currentIndex:-1,questionOpen:false,
+      teams:{},scores:{},answers:{},ended:false,createdAt:Date.now()
+    });
+    /* Keep the answer key in this browser only. */
+    localStorage.setItem(`pragyaHost:${roomCode}`,JSON.stringify({pass:hostPass,questions:localQuestions}));
+    status("Room created. Share the QR code or room code.");
+    renderHost();
+  }catch(e){status("Could not create room: "+e.message);}
+});
+$("joinBtn").addEventListener("click",async()=>{
+  try{
+    await ensureAuth();
+    roomCode=$("joinCode").value.trim().toUpperCase();
+    teamName=$("teamName").value.trim();
+    if(!/^[A-Z0-9]{6}$/.test(roomCode))throw new Error("Enter the six-character room code.");
+    if(!teamName)throw new Error("Enter your team or house name.");
+    const [hostSnap,roomSnap]=await Promise.all([
+      get(path(`roomHosts/${roomCode}`)),get(path(`rooms/${roomCode}`))
+    ]);
+    if(!hostSnap.exists()||!roomSnap.exists())throw new Error("Room not found. Check the code.");
+    const existing=roomSnap.val().teams?.[uid];
+    await set(path(`${roomPath()}/teams/${uid}`),{name:teamName,joinedAt:Date.now()});
+    if(!existing)await set(path(`${roomPath()}/scores/${uid}`),0);
+    renderTeam();
+  }catch(e){status("Could not join: "+e.message);}
+});
+$("openQuestion").addEventListener("click",async()=>{
+  if(!currentRoom||currentRoom.ended)return;
+  const i=currentRoom.currentIndex<0?0:currentRoom.currentIndex;
+  if(i>=currentRoom.questions.length){status("No more questions. End the quiz.");return;}
+  await update(path(roomPath()),{currentIndex:i,questionOpen:true});
+});
+$("closeQuestion").addEventListener("click",async()=>{
+  try{
+    if(!currentRoom||currentRoom.currentIndex<0)return;
+    await update(path(roomPath()),{questionOpen:false});
+    const i=currentRoom.currentIndex, q=localQuestions[i];
+    if(!q)throw new Error("Answer key is not available in this browser.");
+    const ansSnap=await get(path(`${roomPath()}/answers/${i}`));
+    const answers=ansSnap.val()||{};
+    const teamsSnap=await get(path(`${roomPath()}/teams`));
+    const teams=teamsSnap.val()||{};
+    for(const [teamUid,team] of Object.entries(teams)){
+      const answer=answers[teamUid];
+      const correct=answer && Number(answer.choice)===Number(q.correct);
+      const scoreSnap=await get(path(`${roomPath()}/scores/${teamUid}`));
+      const oldScore=Number(scoreSnap.val()||0);
+      if(correct)await set(path(`${roomPath()}/scores/${teamUid}`),oldScore+Number(q.points||10));
+    }
+    status("Question closed and scores updated.");
+  }catch(e){status("Scoring error: "+e.message);}
+});
+$("nextQuestion").addEventListener("click",async()=>{
+  if(!currentRoom)return;
+  const next=(currentRoom.currentIndex??-1)+1;
+  if(next>=currentRoom.questions.length){status("All questions completed. End the quiz.");return;}
+  await update(path(roomPath()),{currentIndex:next,questionOpen:false});
+});
+$("endQuiz").addEventListener("click",async()=>{
+  if(confirm("End this quiz for all teams?"))await update(path(roomPath()),{ended:true,questionOpen:false});
+});
+$("leaveHost").addEventListener("click",()=>{stopListeners();role=null;show("home");hide("hostPanel");});
+$("leaveTeam").addEventListener("click",()=>{stopListeners();role=null;show("home");hide("teamPanel");});
+
+const initialRoom=new URLSearchParams(location.search).get("room");
+if(initialRoom)$("joinCode").value=initialRoom.toUpperCase();
+
+try{
+  await ensureAuth();
+  status("Connected. Create a room or join using the teacher's code.");
+}catch(e){
+  status("Firebase sign-in failed: "+e.message+" Check Firebase Authentication and configuration.");
+}
 </script>
 </body>
 </html>
