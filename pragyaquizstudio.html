@@ -1,0 +1,549 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRAGYA Quiz Studio</title>
+<style>
+:root {
+  --primary: #4f46e5;
+  --dark: #24215f;
+  --bg: #f4f6fb;
+  --border: #e1e5ef;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: #202942;
+}
+header {
+  background: linear-gradient(120deg,var(--dark),#7048e8);
+  color: white;
+  padding: 22px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+header h1 { margin: 0; }
+header p { margin-bottom: 0; color: #e0e7ff; }
+main { max-width: 1150px; margin: 24px auto; padding: 0 16px; }
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 5px 20px #2029420a;
+}
+.grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+input, select, textarea {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #ccd2e0;
+  border-radius: 8px;
+  margin: 5px 0 12px;
+  font: inherit;
+}
+label { font-size: 13px; font-weight: bold; }
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 11px 15px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 3px;
+}
+.primary { background: var(--primary); color: white; }
+.secondary { background: #ecebff; color: #3730a3; }
+.danger { background: #fee2e2; color: #991b1b; }
+.tabs { display: flex; flex-wrap: wrap; margin: 15px 0; }
+.tab { background: white; border: 1px solid var(--border); }
+.tab.active { background: var(--primary); color: white; }
+.hidden { display: none !important; }
+.question {
+  border: 1px solid var(--border);
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 12px;
+}
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.option { display: flex; align-items: center; gap: 5px; }
+.option input[type=radio] { width: auto; margin: 0; }
+.option input[type=text] { min-width: 0; }
+.answer {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 1px solid var(--border);
+  margin: 8px 0;
+}
+.answer:hover { border-color: var(--primary); }
+.correct { background: #dcfce7 !important; }
+.wrong { background: #fee2e2 !important; }
+.score { font-size: 22px; color: var(--primary); font-weight: bold; }
+.timer { font-size: 26px; font-weight: bold; color: var(--primary); }
+.teamrow { display: flex; gap: 8px; align-items: center; }
+.teamrow input { flex: 1; min-width: 0; }
+.muted { color: #68738a; font-size: 13px; line-height: 1.5; }
+@media(max-width:750px) {
+  .grid { grid-template-columns: 1fr; }
+  .options { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>PRAGYA Quiz Studio</h1>
+    <p>R.K. International School, Nabahi</p>
+  </div>
+  <button onclick="saveQuiz()">Save Quiz</button>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Create Your Quiz</h2>
+    <label>Quiz / Competition Name</label>
+    <input id="title" value="PRAGYA 5.0 — Quiz Round">
+
+    <div class="grid">
+      <div>
+        <label>Seconds per question</label>
+        <input id="seconds" type="number" min="5" value="90">
+      </div>
+      <div>
+        <label>Marks for a correct answer</label>
+        <input id="points" type="number" min="0" value="10">
+      </div>
+    </div>
+    <label>Marks for a wrong answer</label>
+    <select id="wrongMarks">
+      <option value="0">0 — No negative marking</option>
+      <option value="-1">-1 mark</option>
+    </select>
+    <p class="muted">Questions: <b id="count">0</b> |
+      Total possible marks: <b id="total">0</b></p>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" onclick="show('builder',this)">Quiz Builder</button>
+    <button class="tab" onclick="show('teams',this)">Teams</button>
+    <button class="tab" onclick="show('game',this)">Play Quiz</button>
+  </nav>
+
+  <section id="builder" class="grid">
+    <div class="card">
+      <h2>Questions</h2>
+      <button class="primary" onclick="addQuestion('mcq')">+ Multiple Choice</button>
+      <button class="secondary" onclick="addQuestion('number')">+ Numerical</button>
+      <div id="questions"></div>
+      <button class="secondary" onclick="downloadQuiz()">Export Quiz JSON</button>
+      <button class="secondary" onclick="document.getElementById('file').click()">Import Quiz</button>
+      <input id="file" type="file" accept=".json" hidden onchange="importQuiz(event)">
+    </div>
+    <aside>
+      <div class="card">
+        <h3>Quick Start</h3>
+        <button class="secondary" onclick="sample()">Load Sample Questions</button>
+        <button class="danger" onclick="clearQuestions()">Clear Questions</button>
+        <p class="muted">Choose the correct answer using the radio button beside an option. Complete all fields before starting.</p>
+      </div>
+      <div class="card">
+        <h3>How it works</h3>
+        <p>1. Add questions and answers.</p>
+        <p>2. Add your teams.</p>
+        <p>3. Start the timed quiz.</p>
+        <p>4. Review scores and export results.</p>
+      </div>
+    </aside>
+  </section>
+
+  <section id="teams" class="grid hidden">
+    <div class="card">
+      <h2>Manage Teams</h2>
+      <button class="primary" onclick="addTeam()">+ Add Team</button>
+      <div id="teamsList"></div>
+      <button class="secondary" onclick="exportTeams()">Export Teams CSV</button>
+    </div>
+    <div class="card">
+      <h3>Team joining</h3>
+      <p class="muted">This version runs on one browser. A real QR joining system requires a hosted site and online database.</p>
+      <h2 id="joinCode">PRAGYA</h2>
+      <button class="secondary" onclick="newCode()">Generate Demo Code</button>
+      <p class="muted">The demo code does not connect other devices.</p>
+    </div>
+  </section>
+
+  <section id="game" class="grid hidden">
+    <div class="card" id="gameArea">
+      <h2>Ready to play?</h2>
+      <button class="primary" onclick="startQuiz()">Start Quiz</button>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Leaderboard</h2>
+        <div id="leaderboard">Scores will appear here.</div>
+      </div>
+      <div class="card">
+        <h3>Results</h3>
+        <button class="secondary" onclick="exportResults()">Download Results CSV</button>
+        <button class="danger" onclick="resetScores()">Reset Scores</button>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script>
+let questions = [];
+let teams = [];
+let scores = {};
+let index = 0;
+let timer = null;
+let timeLeft = 90;
+let answered = false;
+let running = false;
+let preview = false;
+
+const $ = id => document.getElementById(id);
+
+function safe(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;',
+    '"':'&quot;', "'":'&#39;'
+  }[c]));
+}
+
+function show(id, button) {
+  ['builder','teams','game'].forEach(x =>
+    $(x).classList.toggle('hidden', x !== id));
+  document.querySelectorAll('.tab').forEach(b =>
+    b.classList.toggle('active', b === button));
+}
+
+function addQuestion(type, data = {}) {
+  questions.push({
+    type,
+    text: data.text || '',
+    options: data.options || ['', '', '', ''],
+    correct: data.correct || 0,
+    answer: data.answer || '',
+    marks: data.marks ?? Number($('points').value || 10)
+  });
+  renderQuestions();
+}
+
+function renderQuestions() {
+  $('questions').innerHTML = questions.map((q,i) => `
+    <div class="question">
+      <b>Question ${i+1}</b>
+      <button class="danger" onclick="removeQuestion(${i})">Remove</button>
+      <label>Question type</label>
+      <select onchange="changeType(${i},this.value)">
+        <option value="mcq" ${q.type==='mcq'?'selected':''}>Multiple Choice</option>
+        <option value="number" ${q.type==='number'?'selected':''}>Numerical</option>
+      </select>
+      <label>Question text</label>
+      <textarea rows="2" onchange="questions[${i}].text=this.value">${safe(q.text)}</textarea>
+      ${q.type==='mcq' ? `
+        <div class="options">
+          ${q.options.map((o,j)=>`
+            <div class="option">
+              <input type="radio" name="correct${i}"
+                ${q.correct===j?'checked':''}
+                onchange="questions[${i}].correct=${j}">
+              <input type="text" placeholder="Option ${j+1}"
+                value="${safe(o)}"
+                onchange="questions[${i}].options[${j}]=this.value">
+            </div>`).join('')}
+        </div>` : `
+        <label>Correct numerical answer</label>
+        <input type="number" step="any" value="${safe(q.answer)}"
+          onchange="questions[${i}].answer=this.value">`}
+      <label>Marks for this question</label>
+      <input type="number" min="0" value="${q.marks}"
+        onchange="questions[${i}].marks=Number(this.value);stats()">
+    </div>`).join('');
+  stats();
+}
+
+function changeType(i,type) {
+  questions[i].type = type;
+  renderQuestions();
+}
+function removeQuestion(i) {
+  questions.splice(i,1);
+  renderQuestions();
+}
+function stats() {
+  $('count').textContent = questions.length;
+  $('total').textContent = questions.reduce((s,q)=>s+(Number(q.marks)||0),0);
+}
+function clearQuestions() {
+  if(confirm('Delete all questions?')) {
+    questions=[]; renderQuestions();
+  }
+}
+
+function addTeam(name='Team '+(teams.length+1)) {
+  teams.push(name);
+  scores[name] = scores[name] || 0;
+  renderTeams();
+}
+function renderTeams() {
+  $('teamsList').innerHTML = teams.map((t,i)=>`
+    <div class="teamrow">
+      <input value="${safe(t)}" aria-label="Team name"
+        onchange="renameTeam(${i},this.value)">
+      <button class="danger" onclick="removeTeam(${i})">Remove</button>
+    </div>`).join('');
+  leaderboard();
+}
+function renameTeam(i,name) {
+  const old=teams[i];
+  name=name.trim() || 'Team '+(i+1);
+  teams[i]=name;
+  scores[name]=scores[old]||0;
+  if(old!==name) delete scores[old];
+  renderTeams();
+}
+function removeTeam(i) {
+  delete scores[teams[i]];
+  teams.splice(i,1);
+  renderTeams();
+}
+function newCode() {
+  $('joinCode').textContent=Math.floor(100000+Math.random()*900000);
+}
+
+function valid() {
+  if(!questions.length) return alert('Add at least one question.'),false;
+  for(const q of questions) {
+    if(!q.text.trim()) return alert('Enter every question.'),false;
+    if(q.type==='mcq' && q.options.some(x=>!x.trim()))
+      return alert('Complete all four options.'),false;
+    if(q.type==='number' && q.answer==='')
+      return alert('Enter each numerical answer.'),false;
+  }
+  if(!teams.length) return alert('Add at least one team.'),false;
+  return true;
+}
+
+function startQuiz() {
+  if(!valid()) return;
+  clearInterval(timer);
+  index=0; running=true; preview=false;
+  teams.forEach(t=>scores[t]=0);
+  show('game',document.querySelectorAll('.tab')[2]);
+  leaderboard();
+  renderQuestion();
+}
+
+function renderQuestion() {
+  clearInterval(timer);
+  if(index>=questions.length) return finish();
+  answered=false;
+  const q=questions[index];
+  timeLeft=Math.max(5,Number($('seconds').value)||90);
+  $('gameArea').innerHTML=`
+    <div style="display:flex;justify-content:space-between;gap:10px">
+      <b>Question ${index+1} / ${questions.length}</b>
+      <span class="timer" id="timer">${timeLeft}s</span>
+    </div>
+    <p class="muted">Select the team answering this question.</p>
+    <select id="activeTeam">
+      ${teams.map(t=>`<option value="${safe(t)}">${safe(t)}</option>`).join('')}
+    </select>
+    <h2>${safe(q.text)}</h2>
+    <div id="answers">
+      ${q.type==='mcq'
+        ? q.options.map((o,j)=>`
+          <button class="answer" onclick="choose(${j})">
+            ${String.fromCharCode(65+j)}. ${safe(o)}
+          </button>`).join('')
+        : `<input id="numericAnswer" type="number" step="any"
+             placeholder="Enter numerical answer">
+           <button class="primary" onclick="submitNumber()">Submit Answer</button>`}
+    </div>
+    <p id="feedback" class="muted"></p>
+    <button class="secondary" onclick="skip()">Skip / No Answer</button>
+    <button id="next" class="primary" onclick="next()" disabled>
+      ${index===questions.length-1?'Finish Quiz':'Next Question →'}
+    </button>`;
+  timer=setInterval(()=>{
+    timeLeft--;
+    const el=$('timer');
+    if(el) el.textContent=timeLeft+'s';
+    if(timeLeft<=0) {
+      clearInterval(timer);
+      if(!answered) {
+        answered=true;
+        $('feedback').textContent='Time is up. No answer recorded.';
+        $('next').disabled=false;
+      }
+    }
+  },1000);
+}
+
+function choose(choice) {
+  if(answered) return;
+  const q=questions[index];
+  const ok=choice===Number(q.correct);
+  document.querySelectorAll('.answer').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===Number(q.correct)) b.classList.add('correct');
+    else if(j===choice) b.classList.add('wrong');
+  });
+  record(ok);
+}
+function submitNumber() {
+  if(answered) return;
+  const value=$('numericAnswer').value;
+  if(value==='') return alert('Enter an answer.');
+  const ok=Math.abs(Number(value)-Number(questions[index].answer))<1e-9;
+  $('numericAnswer').disabled=true;
+  record(ok);
+  $('feedback').textContent=ok?'Correct!':
+    'Incorrect. Correct answer: '+questions[index].answer;
+}
+function record(correct) {
+  if(answered) return;
+  answered=true;
+  clearInterval(timer);
+  const team=$('activeTeam').value;
+  if(correct) scores[team]=(scores[team]||0)+Number(questions[index].marks);
+  else scores[team]=(scores[team]||0)+Number($('wrongMarks').value);
+  if($('feedback')) $('feedback').textContent +=
+    (correct?' Correct!':' Answer recorded.');
+  $('next').disabled=false;
+  leaderboard();
+}
+function skip() {
+  if(answered) return;
+  answered=true;
+  clearInterval(timer);
+  $('feedback').textContent='Skipped. No marks awarded.';
+  $('next').disabled=false;
+}
+function next() {
+  index++;
+  renderQuestion();
+}
+function finish() {
+  running=false;
+  clearInterval(timer);
+  $('gameArea').innerHTML=`
+    <h2>🏆 Quiz Complete!</h2>
+    <p>All questions have been completed.</p>
+    <button class="primary" onclick="exportResults()">Export Results CSV</button>
+    <button class="secondary" onclick="startQuiz()">Play Again</button>`;
+  leaderboard();
+}
+function leaderboard() {
+  const sorted=teams.map(t=>({team:t,score:scores[t]||0}))
+    .sort((a,b)=>b.score-a.score);
+  $('leaderboard').innerHTML=sorted.map((x,i)=>`
+    <p>${['🥇','🥈','🥉'][i]||('#'+(i+1))}
+      <b>${safe(x.team)}</b>
+      <span style="float:right">${x.score} pts</span></p>`).join('') || 'Add teams first.';
+}
+function resetScores() {
+  if(!confirm('Reset all scores?')) return;
+  teams.forEach(t=>scores[t]=0);
+  leaderboard();
+}
+
+function download(name,content,type='application/json') {
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=name; a.click();
+  URL.revokeObjectURL(url);
+}
+function downloadQuiz() {
+  download('pragya-quiz.json',JSON.stringify({
+    title:$('title').value,
+    seconds:$('seconds').value,
+    points:$('points').value,
+    wrongMarks:$('wrongMarks').value,
+    questions
+  },null,2));
+}
+function saveQuiz() {
+  localStorage.setItem('pragyaQuiz',JSON.stringify({
+    title:$('title').value,
+    seconds:$('seconds').value,
+    points:$('points').value,
+    wrongMarks:$('wrongMarks').value,
+    questions,teams
+  }));
+  alert('Quiz saved in this browser.');
+}
+function importQuiz(event) {
+  const file=event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try {
+      const d=JSON.parse(reader.result);
+      $('title').value=d.title||'Imported Quiz';
+      $('seconds').value=d.seconds||90;
+      $('points').value=d.points||10;
+      $('wrongMarks').value=d.wrongMarks??0;
+      questions=d.questions||[];
+      renderQuestions();
+      alert('Quiz imported.');
+    } catch(e) { alert('Invalid JSON file.'); }
+  };
+  reader.readAsText(file);
+}
+function exportResults() {
+  const rows=[['Rank','Team','Score'],
+    ...teams.map(t=>({team:t,score:scores[t]||0}))
+      .sort((a,b)=>b.score-a.score)
+      .map((x,i)=>[i+1,x.team,x.score])];
+  download('pragya-results.csv',
+    rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',').replace(/\\n/g,'')).join('\n'),
+    'text/csv');
+}
+function exportTeams() {
+  download('pragya-teams.csv',
+    'Team\n'+teams.map(t=>'"'+t.replace(/"/g,'""')+'"').join('\n'),
+    'text/csv');
+}
+function sample() {
+  questions=[
+    {type:'mcq',text:'Which planet is known as the Red Planet?',
+     options:['Venus','Mars','Jupiter','Mercury'],correct:1,answer:'',marks:10},
+    {type:'number',text:'What is 12 × 8?',
+     options:['','','',''],correct:0,answer:'96',marks:10}
+  ];
+  renderQuestions();
+}
+
+(function init(){
+  try {
+    const d=JSON.parse(localStorage.getItem('pragyaQuiz')||'null');
+    if(d) {
+      $('title').value=d.title||$('title').value;
+      $('seconds').value=d.seconds||90;
+      $('points').value=d.points||10;
+      $('wrongMarks').value=d.wrongMarks??0;
+      questions=d.questions||[];
+      teams=d.teams||[];
+    }
+  } catch(e) {}
+  if(!teams.length)
+    ['Dhaulagiri','Godwin','Everest','Himalaya'].forEach(addTeam);
+  renderQuestions();
+  renderTeams();
+})();
+</script>
+</body>
+</html>
